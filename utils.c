@@ -1,6 +1,6 @@
 /*
 libDES - 3+ DES Encryption and Decryption Library
-Copyright (C) 2014  Rudolf Geosits
+Copyright (C) 2014 Rudolf Geosits (rgeosits@live.esu.edu)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,6 +17,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses
 */
 
 #include "utils.h"
+
+//##########+++ Turn blocks into strings +++##########
+void _ld_blocks_to_str(uint64_t *blocks, char *message, uint8_t num_blocks)
+{
+  uint8_t i, j;
+  //# Transform array of uint64_t blocks into char string 
+  
+  for(i = 0, j = 0;i < num_blocks;i++, j += 8){
+    memcpy( message + j, &blocks[i], sizeof(uint64_t) );
+  }
+}
+
+//##########+++ Turn string into blocks +++##########
+void _ld_str_to_blocks(char *message, uint64_t *blocks)
+{
+  uint8_t i, j;
+  //# Transform char string into array of uint64_t blocks   
+  
+  for(i = 0, j = 0;j < strlen(message);i++, j += 8){
+    memcpy( &blocks[i], message + j, sizeof(uint64_t) );
+  }
+}
 
 //##########+++ Print Binary Representation +++##########
 void ld_print_binary(uint64_t num, uint32_t print_size)

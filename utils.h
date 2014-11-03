@@ -3,6 +3,16 @@ void ld_print_binary(uint64_t block, uint32_t print_size);
 # print out X binary characters
 */
 
+void _ld_str_to_blocks(char *message, uint64_t *blocks);
+/*
+# split string into 64 bit blocks
+*/
+
+void _ld_blocks_to_str(uint64_t *blocks, char *message, uint8_t num_blocks);
+/*
+# Concat 64 bit blocks into a string
+*/
+
 //# 3D S-Boxes for fast indexing
 const uint8_t Si[8][4][16] = {
 {

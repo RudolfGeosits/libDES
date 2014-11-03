@@ -1,6 +1,6 @@
 /*       
 libDES - 3+ DES Encryption and Decryption Library                     
-Copyright (C) 2014  Rudolf Geosits         
+Copyright (C) 2014 Rudolf Geosits (rgeosits@live.esu.edu)
  
 This program is free software: you can redistribute it and/or modify 
 it under the terms of the GNU General Public License as published by
@@ -89,7 +89,7 @@ uint64_t expansion_permutation(uint32_t block)
     block&(block_mask >> e_template[i]-1) ? new_block |= e_mask>>i : 0;
   }
 
-  #ifdef DEBUG
+  #ifdef LD_DEBUG
   printf("\n\t[EXPANSION of Ri]\nRi   =  ");
   print_binary(block, 48);
   printf("E(Ri) = ");
@@ -182,7 +182,7 @@ uint64_t permuted_choice_2(uint32_t C, uint32_t D)
   }
 
 
-  #ifdef DEBUG
+  #ifdef LD_DEBUG
   printf("\n\t[PERMUTED CHOICE 2]\nC'D' = ");
   print_binary(CD, 56); printf("Round Key  =   ");
   print_binary(round_key, 48);
@@ -210,10 +210,11 @@ uint32_t s_boxes(uint64_t input)
     col = (sextet >> 1) & 0x0F; // col bits
 
     //# Append the S box result to the 32 bit return value
+    //# Most Significant Nibble First by shifting left
     result |= ((uint32_t)0 | Si[i][row][col]) << k;
   }
 
-  #ifdef DEBUG
+  #ifdef LD_DEBUG
   printf("\n\t[S-BOX Interpolation]\n");
   print_binary(result, 32);
   #endif
@@ -239,7 +240,7 @@ uint32_t permutation(uint32_t block)
     block & (mask >> perm[i]-1) ? result |= (mask >> i) : 0;
   }  
 
-  #ifdef DEBUG
+  #ifdef LD_DEBUG
   puts("\n\t[PERMUTATION]");
   print_binary(result, 32);
   #endif
