@@ -1,9 +1,27 @@
+/*       
+libDES - 3+ DES Encryption and Decryption Library                     
+Copyright (C) 2014  Rudolf Geosits         
+ 
+This program is free software: you can redistribute it and/or modify 
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or   
+(at your option) any later version.                               
+
+This program is distributed in the hope that it will be useful,    
+but WITHOUT ANY WARRANTY; without even the implied warranty of      
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       
+GNU General Public License for more details.
+                                                                  
+You should have received a copy of the GNU General Public License 
+along with this program.  If not, see <http://www.gnu.org/licenses
+*/
+
 #include "permutations.h"
 
 //##########+++ Initial Permutation (IP) +++##########
 void initial_permutation(uint64_t *block)
 {
-  static const unsigned char ip_template[64] = {
+  static const uint8_t ip_template[64] = {
     58, 50, 42, 34, 26, 18, 10, 2,
     60, 52, 44, 36, 28, 20, 12, 4,
     62, 54, 46, 38, 30, 22, 14, 6,
@@ -15,16 +33,16 @@ void initial_permutation(uint64_t *block)
   };
 
   uint64_t mask = 0x8000000000000000, tmp_block = *block;
+  uint8_t i;
   *block = 0;
 
-  char i;
+  //# bit a[X] becomes bit Y
   for(i = 0;i < 64;i++){
-    //Shift the mask to the transformed bit position, turn it on                            
     tmp_block & (mask >> ip_template[i]-1) ? *block |= (mask >> i) : 0;
   }
 }
 
-//##########+++ Final Permutation (IP^-1) +++##########                                              
+//##########+++ Final Permutation (IP^-1) +++##########
 void final_permutation(uint64_t *block)
 {
   static const unsigned char fp_template[64] = {
@@ -39,11 +57,11 @@ void final_permutation(uint64_t *block)
   };
 
   uint64_t mask = 0x8000000000000000, tmp_block = *block;
+  uint8_t i;
   *block = 0;
-  unsigned char i;
-  
+
+  //# bit a[X] becomes bit Y
   for(i = 0;i < 64;i++){
-    //Shift the mask to the transformed bit position, turn it on
     tmp_block & (mask >> fp_template[i]-1) ? *block |= (mask >> i) : 0;
   }
 }
@@ -63,12 +81,12 @@ uint64_t expansion_permutation(uint32_t block)
     28, 29, 30, 31, 32,  1,
   };
 
-  uint64_t expansion_mask = 0x800000000000, new_block = 0;
+  uint64_t e_mask = 0x800000000000, new_block = 0;
   uint32_t block_mask = 0x80000000, i;
 
+  //# bit a[X] becomes bit Y
   for(i = 0;i < 48;i++){
-    //Shift the mask to the transformed bit position, turn it on       
-    block & (block_mask >> e_template[i]-1) ? new_block |= (expansion_mask >> i) : 0;
+    block&(block_mask >> e_template[i]-1) ? new_block |= e_mask>>i : 0;
   }
 
   #ifdef DEBUG
@@ -89,7 +107,7 @@ void left_shift_key_segment(uint32_t *key_seg, unsigned char round)
   };
 
   uint32_t mask = 0x8000000;
-  unsigned char i, CF = 0;
+  uint8_t i, CF = 0;
 
   for(i = 0;i < shift_table[round];i++){
     *key_seg & mask ? CF = 1 : (CF = 0);
@@ -127,11 +145,11 @@ uint64_t permuted_choice_1(uint64_t key)
   };
 
   uint64_t pc1_mask = 0x80000000000000, new_key = 0,
-                     key_mask = 0x8000000000000000;
-  unsigned char i;
+           key_mask = 0x8000000000000000;
+  uint8_t i;
   
+  //# bit a[X] becomes bit Y
   for(i = 0;i < 56;i++){
-    //Shift the mask to the transformed bit position, turn it on                                      
     key & (key_mask >> pc_1[i]-1) ? new_key |= (pc1_mask >> i) : 0;
   }
 
@@ -151,14 +169,15 @@ uint64_t permuted_choice_2(uint32_t C, uint32_t D)
   };
   
   uint64_t pc2_mask = 0x800000000000, round_key = 0,
-                     CD_mask  = 0x80000000000000, CD = 0;
-  unsigned char i;
+           CD_mask  = 0x80000000000000, CD = 0;
+  uint8_t i;
 
   //# Concatenate Key segments into one unit
   CD = ((CD | C) << 28) | D;
 
+  
+  //# bit a[X] becomes bit Y
   for(i = 0;i < 48;i++){
-    //Shift the mask to the transformed bit position, turn it on                                      
     CD & (CD_mask >> pc_2[i]-1) ? round_key |= (pc2_mask >> i) : 0;
   }
 
@@ -214,9 +233,9 @@ uint32_t permutation(uint32_t block)
 
   uint32_t mask = 0x80000000, result = 0;
   uint8_t i;
-  
+
+  //# bit a[X] becomes bit Y
   for(i = 0;i < 32;i++){
-    //Shift the mask to the transformed bit position, turn it on
     block & (mask >> perm[i]-1) ? result |= (mask >> i) : 0;
   }  
 

@@ -1,6 +1,9 @@
-void print_binary(uint64_t block, uint32_t print_size);
+void ld_print_binary(uint64_t block, uint32_t print_size);
+/*
+# print out X binary characters
+*/
 
-//# S-Boxes
+//# 3D S-Boxes for fast indexing
 const uint8_t Si[8][4][16] = {
 {
   {14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7},

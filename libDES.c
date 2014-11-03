@@ -1,3 +1,21 @@
+/*
+libDES - 3+ DES Encryption and Decryption Library
+Copyright (C) 2014  Rudolf Geosits
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses
+*/
+
 //#define DEBUG
 #define DES_ENCRYPT 0
 #define DES_DECRYPT 1
@@ -5,7 +23,7 @@
 //##########+++ DES Encryption/Decryption +++##########
 uint64_t _ld_des(uint64_t block, uint64_t key, uint8_t mode)
 {
-  static const unsigned char ROUNDS = 16;
+  static const uint8_t ROUNDS = 16;
   uint32_t round = 0, i;
 
   initial_permutation( &block );  //# Initial Permutation on plaintext
@@ -48,6 +66,7 @@ uint64_t _ld_des(uint64_t block, uint64_t key, uint8_t mode)
       left = new_left;
       right = new_right;
     
+      //# If DECRYPTION, rotate right instead
       if( mode == DES_DECRYPT ){
 	right_shift_key_segment( &C, round );
 	right_shift_key_segment( &D, round );	
@@ -107,7 +126,8 @@ uint64_t ld_decrypt(uint64_t block, uint64_t key)
   return _ld_des(block, key, DES_DECRYPT);
 }
 //##########+++ 3DES Encrypt +++##########
-uint64_t ld_encrypt3(uint64_t block, uint64_t key1, uint64_t key2, uint64_t key3)
+uint64_t ld_encrypt3(uint64_t block, uint64_t key1, uint64_t key2, 
+		     uint64_t key3)
 {
   return _ld_des(
 	  _ld_des(
@@ -117,7 +137,8 @@ uint64_t ld_encrypt3(uint64_t block, uint64_t key1, uint64_t key2, uint64_t key3
 }
 
 //##########+++ 3DES Decrypt +++##########
-uint64_t ld_decrypt3(uint64_t block, uint64_t key1, uint64_t key2, uint64_t key3)
+uint64_t ld_decrypt3(uint64_t block, uint64_t key1, uint64_t key2, 
+		     uint64_t key3)
 {
   return _ld_des(
 	  _ld_des(
@@ -127,38 +148,43 @@ uint64_t ld_decrypt3(uint64_t block, uint64_t key1, uint64_t key2, uint64_t key3
 }
 
 //##########+++ N-DES Encrypt +++##########
-uint64_t ld_encryptn(uint64_t block, uint32_t n, ...)
+uint64_t ld_encryptn(uint64_t block, uint32_t n, uint64_t *keys)
 {
-  va_list keys;
   uint8_t i, cur_mode = DES_ENCRYPT;
-
-  va_start(keys, n);
-
+  
   for(i = 0;i < n;i++){
-    block = _ld_des(block, va_arg(keys, uint64_t), cur_mode);
+    block = _ld_des(block, keys[i], cur_mode);
     cur_mode = !cur_mode;
   }
 
-  va_end(keys);
   return block;
 }
 
 //##########+++ N-DES Decrypt +++##########
-uint64_t ld_decryptn(uint64_t block, uint32_t n, ...)
+uint64_t ld_decryptn(uint64_t block, uint32_t n, uint64_t *keys)
 {
-  va_list keys;
   uint8_t i, cur_mode = DES_DECRYPT;
-  uint64_t reverse_keys[n];
 
-  va_start(keys, n);
-  for(i = n;i > 0;i--)
-    reverse_keys[i-1] = va_arg(keys, uint64_t);
-
-  for(i = 0;i < n;i++){
-    block = _ld_des(block, reverse_keys[i], cur_mode);
+  for(i = n;i > 0;i--){
+    block = _ld_des(block, keys[i-1], cur_mode);
     cur_mode = !cur_mode;
   }
 
-  va_end(keys);
   return block;
 }
+
+/*
+//##########+++ Message Encrypt +++##########
+void ld_encryptm(char *message, char *cipher_text)
+{
+  
+  return NULL;
+}
+
+//##########+++ Message Decrypt +++##########
+void ld_decryptm(char *message, char *cipher_text)
+{  
+
+  return NULL;
+}
+*/

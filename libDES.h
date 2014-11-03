@@ -31,21 +31,32 @@ uint64_t ld_decrypt(uint64_t block, uint64_t key);
 # Call to Internal _ld_des(block, key, DES_DECRYPT)
 */
 
-uint64_t ld_encrypt3(uint64_t block, uint64_t key1, uint64_t key2, uint64_t key3);
+uint64_t ld_encrypt3(uint64_t block, uint64_t key1, uint64_t key2, 
+		     uint64_t key3);
 /*
 # 3DES Encryption Ek3(Dk2(Ek1(BLOCK)))
 */
 
-uint64_t ld_decrypt3(uint64_t block, uint64_t key1, uint64_t key2, uint64_t key3);
+uint64_t ld_decrypt3(uint64_t block, uint64_t key1, uint64_t key2, 
+		     uint64_t key3);
 /*
 # 3DES Decryption Dk1(Ek2(Dk3(BLOCK)))   
 */
 
-uint64_t ld_decryptn(uint64_t block, uint32_t n, ...);
+uint64_t ld_encryptn(uint64_t block, uint32_t n, uint64_t *keys);
+/*
+# N-DES Encryption ...Ek3(Dk2(Ek1(BLOCK)))
+# Use 1..n DES
+*/
+
+uint64_t ld_decryptn(uint64_t block, uint32_t n, uint64_t *keys);
 /*
 # N-DES Decryption ...Dk1(Ek2(Dk3(BLOCK)))   
-# Use 3+ DES
+# Use 1..n DES
 */
+
+//void ld_encryptm(char *message, char *cipher_text, uint8_t mode);
+//void ld_decryptm(char *cipher_text, char *message, uint8_t mode);
 
 uint32_t _ld_feistel(uint32_t right, uint64_t round_key);
 /*
