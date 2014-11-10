@@ -91,9 +91,9 @@ uint64_t expansion_permutation(uint32_t block)
 
   #ifdef LD_DEBUG
   printf("\n\t[EXPANSION of Ri]\nRi   =  ");
-  print_binary(block, 48);
+  ld_print_binary(block, 48);
   printf("E(Ri) = ");
-  print_binary(new_block, 48);
+  ld_print_binary(new_block, 48);
   #endif
 
   return new_block;
@@ -184,8 +184,8 @@ uint64_t permuted_choice_2(uint32_t C, uint32_t D)
 
   #ifdef LD_DEBUG
   printf("\n\t[PERMUTED CHOICE 2]\nC'D' = ");
-  print_binary(CD, 56); printf("Round Key  =   ");
-  print_binary(round_key, 48);
+  ld_print_binary(CD, 56); printf("Round Key  =   ");
+  ld_print_binary(round_key, 48);
   #endif
 
   return round_key;
@@ -216,7 +216,7 @@ uint32_t s_boxes(uint64_t input)
 
   #ifdef LD_DEBUG
   printf("\n\t[S-BOX Interpolation]\n");
-  print_binary(result, 32);
+  ld_print_binary(result, 32);
   #endif
 
   return result;
@@ -242,7 +242,7 @@ uint32_t permutation(uint32_t block)
 
   #ifdef LD_DEBUG
   puts("\n\t[PERMUTATION]");
-  print_binary(result, 32);
+  ld_print_binary(result, 32);
   #endif
 
   return result;

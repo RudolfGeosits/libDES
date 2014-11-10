@@ -28,7 +28,7 @@ uint64_t plain_block = 0x0123456789ABCDEF,
 	     0x09872384734743e2,
 	     0xef4432847347445e,
 	     0x87089237549fff83,
-	     0x9398478293489233};
+	     0x9398478293489233,};
 
 int main(int argc, char **argv)
 {

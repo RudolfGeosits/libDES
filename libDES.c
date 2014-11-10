@@ -40,9 +40,9 @@ uint64_t _ld_des(uint64_t block, uint64_t key, uint8_t mode)
   for(round = 0;round < ROUNDS;round++){
     #ifdef LD_DEBUG
     printf("*** Round %d   Prepare Round Key ***\nC  = ", round + 1);
-    print_binary(C, 28);
+    ld_print_binary(C, 28);
     printf("D  = ");
-    print_binary(D, 28);
+    ld_print_binary(D, 28);
     #endif
     
     if( mode == _LIBDES_ENCRYPT ){
@@ -52,8 +52,8 @@ uint64_t _ld_des(uint64_t block, uint64_t key, uint8_t mode)
 
     #ifdef LD_DEBUG
     puts("\n\t[LEFT SHIFT(S)]");
-    printf("C' = "); print_binary(C, 28);
-    printf("D' = "); print_binary(D, 28);
+    printf("C' = "); ld_print_binary(C, 28);
+    printf("D' = "); ld_print_binary(D, 28);
     #endif
 
     round_key = permuted_choice_2( C, D );
@@ -78,11 +78,11 @@ uint64_t _ld_des(uint64_t block, uint64_t key, uint8_t mode)
 
     #ifdef LD_DEBUG
     puts("\n\t[Li XOR F(Ri)]");
-    print_binary(new_right, 32);
+    ld_print_binary(new_right, 32);
     printf("\n [NEW LEFT = ]  ");
-    print_binary(new_left, 32);
+    ld_print_binary(new_left, 32);
     printf(" [NEW RIGHT = ] ");
-    print_binary(new_right, 32);
+    ld_print_binary(new_right, 32);
     puts("\n");
     #endif
   }
@@ -107,10 +107,10 @@ uint32_t _ld_feistel(uint32_t right, uint64_t round_key)
   
   #ifdef LD_DEBUG
   puts("\n\t[E(Ri) XOR Ki]");
-  print_binary(round_key, 48);
-  print_binary(expanded_right, 48);
+  ld_print_binary(round_key, 48);
+  ld_print_binary(expanded_right, 48);
   for(i = 0;i < 48;i++){printf("-");}; puts("");
-  print_binary( e_xor_k, 48 );
+  ld_print_binary( e_xor_k, 48 );
   #endif  
 
   //# Apply S-Boxes, then calculate Permutation Function
