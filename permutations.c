@@ -16,9 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses
 */
 
-#include "permutations.h"
-
-//##########+++ Initial Permutation (IP) +++##########
+/* Initial Permutation (IP)
+**
+**
+*/
 void initial_permutation(uint64_t *block)
 {
   static const uint8_t ip_template[64] = {
@@ -32,17 +33,23 @@ void initial_permutation(uint64_t *block)
     63, 55, 47, 39, 31, 23, 15, 7,
   };
 
-  uint64_t mask = 0x8000000000000000, tmp_block = *block;
+  uint64_t mask = 0x8000000000000000;
+  uint64_t tmp_block = *block;
   uint8_t i;
+
   *block = 0;
 
   //# bit a[X] becomes bit Y
-  for(i = 0;i < 64;i++){
+  for ( i = 0; i < 64; i++ ) {
     tmp_block & (mask >> ip_template[i]-1) ? *block |= (mask >> i) : 0;
   }
 }
 
-//##########+++ Final Permutation (IP^-1) +++##########
+
+/* Final Permutation (IP^-1) or (FP)
+**
+**
+*/
 void final_permutation(uint64_t *block)
 {
   static const unsigned char fp_template[64] = {
@@ -56,24 +63,29 @@ void final_permutation(uint64_t *block)
     33,  1, 41,  9, 49, 17, 57, 25,
   };
 
-  uint64_t mask = 0x8000000000000000, tmp_block = *block;
+  uint64_t mask = 0x8000000000000000;
+  uint64_t tmp_block = *block;
   uint8_t i;
+  
   *block = 0;
 
   //# bit a[X] becomes bit Y
-  for(i = 0;i < 64;i++){
+  for ( i = 0; i < 64; i++ ) {
     tmp_block & (mask >> fp_template[i]-1) ? *block |= (mask >> i) : 0;
   }
 }
 
 
-//##########+++ Expansion Permutation (E) +++##########
+/* Expansion Permutation (E)
+**
+**
+*/
 uint64_t expansion_permutation(uint32_t block)
 {
   static const unsigned char e_template[48] = {
     32,  1,  2,  3,  4,  5,
-    4,  5,  6,  7,  8,  9,
-    8,  9, 10, 11, 12, 13,
+     4,  5,  6,  7,  8,  9,
+     8,  9, 10, 11, 12, 13,
     12, 13, 14, 15, 16, 17,
     16, 17, 18, 19, 20, 21,
     20, 21, 22, 23, 24, 25,
@@ -81,25 +93,31 @@ uint64_t expansion_permutation(uint32_t block)
     28, 29, 30, 31, 32,  1,
   };
 
-  uint64_t e_mask = 0x800000000000, new_block = 0;
-  uint32_t block_mask = 0x80000000, i;
+  uint32_t block_mask = 0x80000000;
+  uint64_t e_mask = 0x800000000000;
+  uint64_t new_block = 0;
+  uint8_t i;
 
   //# bit a[X] becomes bit Y
-  for(i = 0;i < 48;i++){
+  for ( i = 0; i < 48; i++ ) {
     block&(block_mask >> e_template[i]-1) ? new_block |= e_mask>>i : 0;
   }
 
   #ifdef LD_DEBUG
-  printf("\n\t[EXPANSION of Ri]\nRi   =  ");
-  ld_print_binary(block, 48);
-  printf("E(Ri) = ");
-  ld_print_binary(new_block, 48);
+  printf( "\n\t[EXPANSION of Ri]\nRi   =  " );
+  ld_print_binary( block, 48 );
+  printf( "E(Ri) = " );
+  ld_print_binary( new_block, 48 );
   #endif
 
   return new_block;
 }
 
-//##########+++ Left shift for key segment encryption +++########## 
+
+/* Cyclical left shift for key segment encryption
+**
+**
+*/
 void left_shift_key_segment(uint32_t *key_seg, unsigned char round)
 {
   static const unsigned char shift_table[16] = {
@@ -107,30 +125,41 @@ void left_shift_key_segment(uint32_t *key_seg, unsigned char round)
   };
 
   uint32_t mask = 0x8000000;
-  uint8_t i, CF = 0;
+  uint32_t CF = 0;            /* Carry Flag */
+  uint8_t i;
 
-  for(i = 0;i < shift_table[round];i++){
+  for ( i = 0; i < shift_table[round]; i++ ) {
     *key_seg & mask ? CF = 1 : (CF = 0);
     *key_seg = ((*key_seg << 1) & 0x0FFFFFFE) | CF;
   }
 }
 
-//##########+++ Right shift for key segment decryption +++########## 
+
+/* Cyclical right shift for key segment decryption
+**
+**
+*/
 void right_shift_key_segment(uint32_t *key_seg, unsigned char round)
 {
   static const unsigned char shift_table[16] = {
     1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1
   };
 
-  uint32_t i, CF = 0, mask = 1;
+  uint32_t mask = 1;
+  uint32_t CF = 0;   /* Carry Flag */
+  uint8_t i;
 
-  for(i = 0;i < shift_table[round];i++){
+  for ( i = 0; i < shift_table[round]; i++ ) {
     *key_seg & mask ? CF = 0x8000000 : (CF = 0);
     *key_seg = ((*key_seg >> 1) & 0x07FFFFFF) | CF;
   }
 }
 
-//##########+++ Permuted Choice 1 (PC1) +++########## 
+
+/* Permuted Choice 1 (PC1)
+**
+**
+*/
 uint64_t permuted_choice_1(uint64_t key)
 {
   static const unsigned char pc_1[56] = {
@@ -144,19 +173,24 @@ uint64_t permuted_choice_1(uint64_t key)
     21, 13, 5, 28, 20, 12, 4,
   };
 
-  uint64_t pc1_mask = 0x80000000000000, new_key = 0,
-           key_mask = 0x8000000000000000;
+  uint64_t key_mask = 0x8000000000000000,
+           pc1_mask = 0x80000000000000; 
+  uint64_t new_key = 0;
   uint8_t i;
   
   //# bit a[X] becomes bit Y
-  for(i = 0;i < 56;i++){
+  for ( i = 0; i < 56; i++ ) {
     key & (key_mask >> pc_1[i]-1) ? new_key |= (pc1_mask >> i) : 0;
   }
 
   return new_key;
 }
 
-//##########+++ Permuted Choice 2 (PC2) +++########## 
+
+/* Permuted Choice 2 (PC2)
+**
+**
+*/
 uint64_t permuted_choice_2(uint32_t C, uint32_t D)
 {
   static const unsigned char pc_2[48] = {
@@ -168,37 +202,42 @@ uint64_t permuted_choice_2(uint32_t C, uint32_t D)
     34, 53, 46, 42, 50, 36, 29, 32,
   };
   
-  uint64_t pc2_mask = 0x800000000000, round_key = 0,
-           CD_mask  = 0x80000000000000, CD = 0;
+  uint64_t CD_mask = 0x80000000000000;
+  uint64_t pc2_mask = 0x800000000000;
+  uint64_t round_key = 0;
+  uint64_t CD = 0;
   uint8_t i;
 
   //# Concatenate Key segments into one unit
   CD = ((CD | C) << 28) | D;
-
   
   //# bit a[X] becomes bit Y
-  for(i = 0;i < 48;i++){
+  for ( i = 0; i < 48; i++ ) {
     CD & (CD_mask >> pc_2[i]-1) ? round_key |= (pc2_mask >> i) : 0;
   }
 
 
   #ifdef LD_DEBUG
-  printf("\n\t[PERMUTED CHOICE 2]\nC'D' = ");
-  ld_print_binary(CD, 56); printf("Round Key  =   ");
-  ld_print_binary(round_key, 48);
+  printf( "\n\t[PERMUTED CHOICE 2]\nC'D' = " );
+  ld_print_binary( CD, 56 ); printf( "Round Key  =   " );
+  ld_print_binary( round_key, 48 );
   #endif
 
   return round_key;
 }
 
-//##########+++ S-box calculation +++########## 
+
+/* S-Box calculation
+**
+**
+*/
 uint32_t s_boxes(uint64_t input)
 {
   uint64_t mask = 0x3F;
   uint32_t result = 0;
   uint8_t i, j = 42, k = 28;
 
-  for( i = 0; i < 8; (i++),(j -= 6),(k -= 4) ){
+  for ( i = 0; i < 8; (i++), (j -= 6), (k -= 4) ) {
     //# Raw 6 bit value to interpolate
     uint8_t sextet = (input >> j) & mask;
     uint8_t row = 0, col = 0;
@@ -215,14 +254,18 @@ uint32_t s_boxes(uint64_t input)
   }
 
   #ifdef LD_DEBUG
-  printf("\n\t[S-BOX Interpolation]\n");
-  ld_print_binary(result, 32);
+  printf( "\n\t[S-BOX Interpolation]\n" );
+  ld_print_binary( result, 32 );
   #endif
 
   return result;
 }
 
-//##########+++ Permutation Function +++########## 
+
+/* Permutation Function (P)
+**
+**
+*/
 uint32_t permutation(uint32_t block)
 {
   static const char perm[32] = {
@@ -232,17 +275,18 @@ uint32_t permutation(uint32_t block)
     19, 13, 30,  6, 22, 11,  4, 25,
   };
 
-  uint32_t mask = 0x80000000, result = 0;
+  uint32_t mask = 0x80000000;
+  uint32_t result = 0;
   uint8_t i;
 
   //# bit a[X] becomes bit Y
-  for(i = 0;i < 32;i++){
+  for ( i = 0; i < 32; i++ ) {
     block & (mask >> perm[i]-1) ? result |= (mask >> i) : 0;
   }  
 
   #ifdef LD_DEBUG
-  puts("\n\t[PERMUTATION]");
-  ld_print_binary(result, 32);
+  puts( "\n\t[PERMUTATION]" );
+  ld_print_binary( result, 32 );
   #endif
 
   return result;

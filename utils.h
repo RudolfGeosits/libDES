@@ -1,20 +1,9 @@
 void ld_print_binary(uint64_t block, uint32_t print_size);
-/*
-# print out X binary characters
-*/
-
 void _ld_str_to_blocks(char *message, uint64_t *blocks);
-/*
-# split string into 64 bit blocks
-*/
-
 void _ld_blocks_to_str(uint64_t *blocks, char *message, uint8_t num_blocks);
-/*
-# Concat 64 bit blocks into a string
-*/
 
 //# 3D S-Boxes for fast indexing
-const uint8_t Si[8][4][16] = {
+static const uint8_t Si[8][4][16] = {
 {
   {14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7},
   {0,15,7,4,14,2,13,1,10,6,12,11,9,5,3,8},
@@ -64,3 +53,5 @@ const uint8_t Si[8][4][16] = {
   {2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11},
 },
   };
+
+#include "utils.c"

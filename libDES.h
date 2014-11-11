@@ -15,10 +15,10 @@
 #include <stdarg.h>
 #endif
 #ifndef UTILS_C
-#include "utils.c"
+#include "utils.h"
 #endif
 #ifndef PERMUTATIONS_C
-#include "permutations.c"
+#include "permutations.h"
 #endif
 
 uint64_t ld_encrypt(uint64_t block, uint64_t key);

@@ -44,3 +44,5 @@ uint32_t permutation(uint32_t block);
 # The permutation (P) function is applied after the S box
 # Interpolation and returns from the F function
 */
+
+#include "permutations.c"
