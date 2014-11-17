@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses
 
 /* Initial Permutation (IP)
 **
-**
+** Confusion box
 */
 void initial_permutation(uint64_t *block)
 {
@@ -39,16 +39,18 @@ void initial_permutation(uint64_t *block)
 
   *block = 0;
 
-  //# bit a[X] becomes bit Y
+  /* bit a[X] -> bit Y */
   for ( i = 0; i < 64; i++ ) {
-    tmp_block & (mask >> ip_template[i]-1) ? *block |= (mask >> i) : 0;
+    tmp_block & (mask >> ip_template[i]-1) 
+      ? *block |= (mask >> i) 
+      : 0;
   }
 }
 
 
 /* Final Permutation (IP^-1) or (FP)
 **
-**
+** Undo the initial permutation confusion
 */
 void final_permutation(uint64_t *block)
 {
@@ -69,16 +71,17 @@ void final_permutation(uint64_t *block)
   
   *block = 0;
 
-  //# bit a[X] becomes bit Y
-  for ( i = 0; i < 64; i++ ) {
-    tmp_block & (mask >> fp_template[i]-1) ? *block |= (mask >> i) : 0;
+  for ( i = 0; i < 64; i++ ) {   /* bit a[X] -> bit Y */
+    tmp_block & (mask >> fp_template[i]-1) 
+      ? *block |= (mask >> i) 
+      : 0;
   }
 }
 
 
 /* Expansion Permutation (E)
 **
-**
+** Diffusion Expansion from 32 to 48 bits
 */
 uint64_t expansion_permutation(uint32_t block)
 {
@@ -98,9 +101,10 @@ uint64_t expansion_permutation(uint32_t block)
   uint64_t new_block = 0;
   uint8_t i;
 
-  //# bit a[X] becomes bit Y
-  for ( i = 0; i < 48; i++ ) {
-    block&(block_mask >> e_template[i]-1) ? new_block |= e_mask>>i : 0;
+  for ( i = 0; i < 48; i++ ) {   /* bit a[X] -> bit Y */
+    block & ( block_mask >> e_template[i] - 1 ) 
+      ? new_block |= e_mask >> i
+      : 0;
   }
 
   #ifdef LD_DEBUG
@@ -116,11 +120,12 @@ uint64_t expansion_permutation(uint32_t block)
 
 /* Cyclical left shift for key segment encryption
 **
-**
+** Rotate 32 bit block left by N where N is defined by
+** the specified round
 */
-void left_shift_key_segment(uint32_t *key_seg, unsigned char round)
+void left_shift_key_segment(uint32_t *key_seg, uint8_t round)
 {
-  static const unsigned char shift_table[16] = {
+  static const uint8_t shift_table[16] = {
     1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1,
   };
 
@@ -137,11 +142,12 @@ void left_shift_key_segment(uint32_t *key_seg, unsigned char round)
 
 /* Cyclical right shift for key segment decryption
 **
-**
+** Rotate 32 bit block right by N where N is defined by 
+** the specified round
 */
-void right_shift_key_segment(uint32_t *key_seg, unsigned char round)
+void right_shift_key_segment(uint32_t *key_seg, uint8_t round)
 {
-  static const unsigned char shift_table[16] = {
+  static const uint8_t shift_table[16] = {
     1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1
   };
 
@@ -158,19 +164,19 @@ void right_shift_key_segment(uint32_t *key_seg, unsigned char round)
 
 /* Permuted Choice 1 (PC1)
 **
-**
+** returns a permuted 56 bit key block
 */
 uint64_t permuted_choice_1(uint64_t key)
 {
   static const unsigned char pc_1[56] = {
     57, 49, 41, 33, 25, 17,  9,
-    1, 58, 50, 42, 34, 26, 18,
+     1, 58, 50, 42, 34, 26, 18,
     10,  2, 59, 51, 43, 35, 27,
     19, 11,  3, 60, 52, 44, 36,
     63, 55, 47, 39, 31, 23, 15,
-    7, 62, 54, 46, 38, 30, 22,
+     7, 62, 54, 46, 38, 30, 22,
     14,  6, 61, 53, 45, 37, 29,
-    21, 13, 5, 28, 20, 12, 4,
+    21, 13,  5, 28, 20, 12,  4,
   };
 
   uint64_t key_mask = 0x8000000000000000,
@@ -180,7 +186,9 @@ uint64_t permuted_choice_1(uint64_t key)
   
   //# bit a[X] becomes bit Y
   for ( i = 0; i < 56; i++ ) {
-    key & (key_mask >> pc_1[i]-1) ? new_key |= (pc1_mask >> i) : 0;
+    key & ( key_mask >> pc_1[i] - 1 )
+      ? new_key |= (pc1_mask >> i) 
+      : 0;
   }
 
   return new_key;
@@ -189,7 +197,7 @@ uint64_t permuted_choice_1(uint64_t key)
 
 /* Permuted Choice 2 (PC2)
 **
-**
+** return a permuted 48 bit block
 */
 uint64_t permuted_choice_2(uint32_t C, uint32_t D)
 {
@@ -208,14 +216,13 @@ uint64_t permuted_choice_2(uint32_t C, uint32_t D)
   uint64_t CD = 0;
   uint8_t i;
 
-  //# Concatenate Key segments into one unit
-  CD = ((CD | C) << 28) | D;
+  CD = ((CD | C) << 28) | D;     /* Concat C and D */
   
-  //# bit a[X] becomes bit Y
-  for ( i = 0; i < 48; i++ ) {
-    CD & (CD_mask >> pc_2[i]-1) ? round_key |= (pc2_mask >> i) : 0;
+  for ( i = 0; i < 48; i++ ) {   /* Bit a[x] -> bit y */
+    CD & ( CD_mask >> pc_2[i] - 1 ) 
+      ? round_key |= (pc2_mask >> i)
+      : 0;
   }
-
 
   #ifdef LD_DEBUG
   printf( "\n\t[PERMUTED CHOICE 2]\nC'D' = " );
@@ -229,7 +236,8 @@ uint64_t permuted_choice_2(uint32_t C, uint32_t D)
 
 /* S-Box calculation
 **
-**
+** return 32 bit block that has gone through 
+** S-Box Calculation based on its bitwise index
 */
 uint32_t s_boxes(uint64_t input)
 {
@@ -238,18 +246,16 @@ uint32_t s_boxes(uint64_t input)
   uint8_t i, j = 42, k = 28;
 
   for ( i = 0; i < 8; (i++), (j -= 6), (k -= 4) ) {
-    //# Raw 6 bit value to interpolate
-    uint8_t sextet = (input >> j) & mask;
+    uint8_t sextet = (input >> j) & mask;   /* 6 bit value */
     uint8_t row = 0, col = 0;
 
-    //# Interpolate row and column values (0bRCCCCR)
-    sextet & 0x20 ? row |= 0b10 : 0; // row msb
-    sextet & 0x01 ? row |= 0b01 : 0; // row lsb
+    /* Interpolate row and column values (0bRCCCCR) */
+    sextet & 0x20 ? row |= 0b10 : 0;   /* row MSB */
+    sextet & 0x01 ? row |= 0b01 : 0;   /* row LSB */
     
-    col = (sextet >> 1) & 0x0F; // col bits
+    col = (sextet >> 1) & 0x0F;        /* col bits */
 
-    //# Append the S box result to the 32 bit return value
-    //# Most Significant Nibble First by shifting left
+    /* Append the S box result to the 32 bit value nibble by nibble */
     result |= ((uint32_t)0 | Si[i][row][col]) << k;
   }
 
@@ -264,7 +270,8 @@ uint32_t s_boxes(uint64_t input)
 
 /* Permutation Function (P)
 **
-**
+** return a 32 bit block permuted the last time
+** in the DES function before returning
 */
 uint32_t permutation(uint32_t block)
 {
@@ -279,8 +286,7 @@ uint32_t permutation(uint32_t block)
   uint32_t result = 0;
   uint8_t i;
 
-  //# bit a[X] becomes bit Y
-  for ( i = 0; i < 32; i++ ) {
+  for ( i = 0; i < 32; i++ ) {   /* bit a[X] -> bit Y */
     block & (mask >> perm[i]-1) ? result |= (mask >> i) : 0;
   }  
 

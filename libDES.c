@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses
 */
 
 /* interface enums */
-//#define LD_DEBUG
 typedef enum { LD_DES, LD_3DES, LD_NDES } ld_type;
 
 /* local enums */
@@ -26,7 +25,7 @@ typedef enum { _LIBDES_ENCRYPT, _LIBDES_DECRYPT } _ld_method;
 
 /* DES Encryption/Decryption Algorithm
 **
-**
+** returns 64 bit block according to mode specified
 */
 uint64_t _ld_des(uint64_t block, uint64_t key, uint8_t mode)
 {
@@ -46,7 +45,7 @@ uint64_t _ld_des(uint64_t block, uint64_t key, uint8_t mode)
     #ifdef LD_DEBUG
     printf( "*** Round %d   Prepare Round Key ***\nC  = ", round + 1 );
     ld_print_binary( C, 28 );
-    printf(" D  = " );
+    printf( " D  = " );
     ld_print_binary( D, 28 );
     #endif
     
@@ -57,25 +56,22 @@ uint64_t _ld_des(uint64_t block, uint64_t key, uint8_t mode)
 
     #ifdef LD_DEBUG
     puts( "\n\t[LEFT SHIFT(S)]" );
-    printf("C' = "); ld_print_binary( C, 28 );
-    printf("D' = "); ld_print_binary( D, 28 );
+    printf( "C' = " ); ld_print_binary( C, 28 );
+    printf( "D' = " ); ld_print_binary( D, 28 );
     #endif
 
     round_key = permuted_choice_2( C, D );
     
-    //# Ri+1 = Li XOR F(Ri)
-    new_right = left ^ _ld_feistel( right, round_key );
+    new_right =         /* Ri+1 = Li XOR F(Ri) */
+      left ^ _ld_feistel( right, round_key );
     
-    //# Li+1 = Ri
-    new_left = right;
+    new_left = right;   /* Li+1 = Ri */
 
-    //# Finalize for next round, unless 16
-    if ( round != 16 ) {
+    if ( round != 16 ) {   /* Finalize for next round */
       left = new_left;
       right = new_right;
     
-      //# If DECRYPTION, rotate right instead
-      if ( mode == _LIBDES_DECRYPT ) {
+      if ( mode == _LIBDES_DECRYPT ) {       /* rotate right for decryption */
 	right_shift_key_segment( &C, round );
 	right_shift_key_segment( &D, round );	
       }
@@ -102,7 +98,7 @@ uint64_t _ld_des(uint64_t block, uint64_t key, uint8_t mode)
 
 /* Feistel structure round
 **
-**
+** returns a 32 bit block which is the encrypted side of the current block
 */
 uint32_t _ld_feistel(uint32_t right, uint64_t round_key)
 {
@@ -131,7 +127,7 @@ uint32_t _ld_feistel(uint32_t right, uint64_t round_key)
 
 /* DES Encrypt (one block, one key)
 **
-**
+** returns a 64 bit block encrypted by DES
 */
 uint64_t ld_encrypt(uint64_t block, uint64_t key)
 {
@@ -141,7 +137,7 @@ uint64_t ld_encrypt(uint64_t block, uint64_t key)
 
 /* DES Decrypt (one block, one key)
 **
-**
+** returns a 64 bit block decrypted by DES
 */
 uint64_t ld_decrypt(uint64_t block, uint64_t key)
 {
@@ -151,7 +147,7 @@ uint64_t ld_decrypt(uint64_t block, uint64_t key)
 
 /* 3DES Encrypt (one block, three keys)
 **
-**
+** returns a 64 bit block encrypted by 3DES
 */
 uint64_t ld_encrypt3(uint64_t block, uint64_t *keys)
 {
@@ -166,7 +162,7 @@ uint64_t ld_encrypt3(uint64_t block, uint64_t *keys)
 
 /* DES Decrypt (one block, three keys)
 **
-**
+** returns a 64 bit block decrypted by 3DES
 */
 uint64_t ld_decrypt3(uint64_t block, uint64_t *keys)
 {
@@ -180,7 +176,7 @@ uint64_t ld_decrypt3(uint64_t block, uint64_t *keys)
 
 /* N-DES Encrypt (one block, n keys)
 **
-**
+** returns a 64 bit block encrypted by NDES
 */
 uint64_t ld_encryptn(uint64_t block, uint32_t n, uint64_t *keys)
 {
@@ -202,7 +198,7 @@ uint64_t ld_encryptn(uint64_t block, uint32_t n, uint64_t *keys)
 
 /* N-DES Decrypt (one block, n keys)
 **
-**
+** returns a 64 bit block decrypted by NDES
 */
 uint64_t ld_decryptn(uint64_t block, uint32_t n, uint64_t *keys)
 {
@@ -225,7 +221,14 @@ uint64_t ld_decryptn(uint64_t block, uint32_t n, uint64_t *keys)
 
 /* N-DES Encrypt Message with any mode
 **
-**
+** ld_encryptm(*PLAINTEXT, *CIPHERTEXT, MODE, ...)
+**    PLAINTEXT gets encrypted block by block by the MODE 
+**    parameter (LD_DES, LD_3DES, or LD_NDES)
+**    CIPHERTEXT will point to the encrypted message
+** Exs.
+**   ld_encryptm(msg, cmsg, DES, key)
+**   ld_encryptm(msg, cmsg, 3DES, keys) where keys is uint64_t arr[3] 
+**   ld_encryptm(msg, cmsg, NDES, 9, keys) where keys is uint64_t arr[9]
 */
 void ld_encryptm(char *message, char *cipher_text, uint8_t mode, ...)
 {
@@ -270,9 +273,17 @@ void ld_encryptm(char *message, char *cipher_text, uint8_t mode, ...)
 }
 
 
+
 /* N-DES Decrypt Message with any mode
 **
-**
+** ld_decryptm(*CIPHERTEXT, *PLAINTEXT, MODE, ...)
+**    CIPHERTEXT gets decrypted block by block by the MODE 
+**    parameter (LD_DES, LD_3DES, or LD_NDES)
+**    PLAINTEXT will point to the decrypted message
+** Exs.
+**   ld_decryptm(cmsg, msg, DES, key)
+**   ld_decryptm(cmsg, msg, 3DES, keys) where keys is uint64_t arr[3] 
+**   ld_decryptm(cmsg, msg, NDES, 9, keys) where keys is uint64_t arr[9]
 */
 void ld_decryptm(char *message, char *plain_text, uint8_t mode, ...)
 {  
