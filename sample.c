@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses
 #include "libDES.h"
 
 char message[] = "Hello block cipher world!\n";
-char cipher_message[50] = {0}, plain_message[50] = {0};
+char cipher_msg[50], plain_msg[50];
 
 uint64_t plain_block = 0x0123456789ABCDEF,
   cipher_block = 0, deciphered_block = 0,
@@ -32,15 +32,18 @@ uint64_t plain_block = 0x0123456789ABCDEF,
 
 int main(int argc, char **argv)
 {
+  memset(plain_msg,  0,  sizeof plain_msg); /* Clear Message Buffers */
+  memset(cipher_msg, 0, sizeof cipher_msg);
+
   //###+++ String N-DES Encryption Example +++###
   //# mode can be: LD_DES, LD_3DES, or LD_NDES
 
-  ld_encryptm(message, cipher_message, LD_NDES, 5, keys);
-  printf("\nMessage Encrypt %s \t%s\n", message, cipher_message);
+  ld_encryptm(message, cipher_msg, LD_NDES, 5, keys);
+  printf("\nMessage Encrypt %s \t%s\n", message, cipher_msg);
 
-  //            ciphertxt       plaintxt      mode    N  list of keys         
-  ld_decryptm(cipher_message, plain_message, LD_NDES, 5, keys);
-  printf("\nMessage Decrypt %s\n \t%s\n", cipher_message, plain_message);
+  //          ciphertxt   plaintxt    mode    N  list of keys
+  ld_decryptm(cipher_msg, plain_msg, LD_NDES, 5, keys);
+  printf("\nMessage Decrypt %s\n \t%s\n", cipher_msg, plain_msg);
 
 
 

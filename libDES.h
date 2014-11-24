@@ -31,6 +31,9 @@ uint64_t ld_decryptn(uint64_t block, uint32_t n, uint64_t *keys);
 void ld_encryptm(char *message, char *cipher_text, uint8_t mode, ...);
 void ld_decryptm(char *cipher_text, char *message, uint8_t mode, ...);
 
+void ld_send_iv(int32_t fd);
+void ld_recv_iv(int32_t fd);
+
 uint32_t _ld_feistel(uint32_t right, uint64_t round_key);
 uint64_t _ld_des(uint64_t block, uint64_t key, uint8_t mode);
 

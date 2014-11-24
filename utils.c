@@ -21,7 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses
 ** _ld_blocks_to_str(BLOCK_ARRAY, STR, NUM_OF_BLOCKS)
 **  Places result into STR
 */ 
-void _ld_blocks_to_str(uint64_t *blocks, char *message, uint8_t num_blocks)
+void _ld_blocks_to_str(uint64_t *blocks, char *message, 
+		       uint8_t num_blocks)
 {
   uint8_t i = 0, j = 0;
 
@@ -36,11 +37,12 @@ void _ld_blocks_to_str(uint64_t *blocks, char *message, uint8_t num_blocks)
 ** _ld_str_to_blocks(STR, BLOCK_ARRAY) 
 **  Places result into BLOCK_ARRAY
 */
-void _ld_str_to_blocks(char *message, uint64_t *blocks)
+void _ld_str_to_blocks(char *message, uint8_t str_size, 
+		       uint64_t *blocks)
 {
   uint8_t i = 0, j = 0;
 
-  for ( ; j < strlen(message); i++, j += 8 ) {
+  for ( ; j < str_size; i++, j += 8 ) {
     memcpy(&blocks[i], message + j, sizeof(uint64_t));
   }
 }

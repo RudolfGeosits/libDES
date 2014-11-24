@@ -1,6 +1,10 @@
 void ld_print_binary(uint64_t block, uint32_t print_size);
-void _ld_str_to_blocks(char *message, uint64_t *blocks);
-void _ld_blocks_to_str(uint64_t *blocks, char *message, uint8_t num_blocks);
+
+void _ld_str_to_blocks(char *message, uint8_t str_size, 
+		       uint64_t *blocks);
+
+void _ld_blocks_to_str(uint64_t *blocks, char *message, 
+		       uint8_t num_blocks);
 
 //# 3D S-Boxes for fast indexing
 static const uint8_t Si[8][4][16] = {
