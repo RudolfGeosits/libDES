@@ -1,3 +1,0 @@
-env = Environment()
-env.Program(target = 'server', source = ['server.c'])
-env.Program(target = 'client', source = ['client.c'])

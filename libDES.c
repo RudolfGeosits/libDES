@@ -65,18 +65,18 @@ uint64_t _ld_des(uint64_t block, uint64_t key, uint8_t mode)
 
     round_key = permuted_choice_2( C, D );
     
-    new_right =         /* Ri+1 = Li XOR F(Ri) */
+    new_right =            /* Ri+1 = Li XOR F(Ri) */
       left ^ _ld_feistel( right, round_key );
     
-    new_left = right;   /* Li+1 = Ri */
+    new_left = right;      /* Li+1 = Ri */
 
     if ( round != 16 ) {   /* Finalize for next round */
       left = new_left;
       right = new_right;
     
-      if ( mode == _LIBDES_DECRYPT ) {  /* rotate right for decrypt */
-	right_shift_key_segment( &C, round );
-	right_shift_key_segment( &D, round );	
+      if ( mode == _LIBDES_DECRYPT ) {   /* rotate right for decrypt */
+        right_shift_key_segment( &C, round );
+        right_shift_key_segment( &D, round );   
       }
     }
 
@@ -156,11 +156,11 @@ uint64_t ld_decrypt(uint64_t block, uint64_t key)
 uint64_t ld_encrypt3(uint64_t block, uint64_t *keys)
 {
   return _ld_des(
-	  _ld_des(
+      _ld_des(
            _ld_des( block, 
-		    keys[0], _LIBDES_ENCRYPT ), 
-	          keys[1], _LIBDES_DECRYPT ), 
-	         keys[2], _LIBDES_ENCRYPT );
+                    keys[0], _LIBDES_ENCRYPT ), 
+           keys[1], _LIBDES_DECRYPT ), 
+      keys[2], _LIBDES_ENCRYPT );
 }
 
 
@@ -171,11 +171,11 @@ uint64_t ld_encrypt3(uint64_t block, uint64_t *keys)
 uint64_t ld_decrypt3(uint64_t block, uint64_t *keys)
 {
   return _ld_des(
-	  _ld_des(
+      _ld_des(
            _ld_des( block, 
-		    keys[2], _LIBDES_DECRYPT ), 
-                  keys[1], _LIBDES_ENCRYPT ), 
-                 keys[0], _LIBDES_DECRYPT );
+                    keys[2], _LIBDES_DECRYPT ), 
+           keys[1], _LIBDES_ENCRYPT ), 
+      keys[0], _LIBDES_DECRYPT );
 }
 
 
@@ -255,7 +255,7 @@ void ld_encryptm(char *message, char *cipher_text, uint8_t mode, ...)
     if ( mode == LD_DES ) {
       va_start( args, mode );          /* Expect one key arg */
       blocks[i] = 
-	_ld_des( blocks[i], va_arg(args, uint64_t), _LIBDES_ENCRYPT );
+        _ld_des( blocks[i], va_arg(args, uint64_t), _LIBDES_ENCRYPT );
     }
     else if ( mode == LD_3DES ) {
       mode = 1;                        /* Expect a key array */
@@ -272,10 +272,10 @@ void ld_encryptm(char *message, char *cipher_text, uint8_t mode, ...)
       uint64_t *keys = va_arg( args, uint64_t* );
 
       if ( _LD_CBC_MODE ) {
-	iv = blocks[i] = ld_encryptn(blocks[i] ^ iv, n, keys);
+        iv = blocks[i] = ld_encryptn(blocks[i] ^ iv, n, keys);
       }
       else {
-	blocks[i] = ld_encryptn( blocks[i], n, keys );
+        blocks[i] = ld_encryptn( blocks[i], n, keys );
       }
     
     }
@@ -324,7 +324,7 @@ void ld_decryptm(char *message, char *plain_text, uint8_t mode, ...)
       va_start( args, mode );         /* Expect one key arg */
 
       blocks[i] = 
-	_ld_des( blocks[i], va_arg(args, uint64_t), _LIBDES_DECRYPT );
+        _ld_des( blocks[i], va_arg(args, uint64_t), _LIBDES_DECRYPT );
     }
     else if ( mode == LD_3DES ) {
       mode = 1;                       /* Expect one key array */
@@ -341,11 +341,11 @@ void ld_decryptm(char *message, char *plain_text, uint8_t mode, ...)
       uint64_t *keys = va_arg( args, uint64_t* );
 
       if (_LD_CBC_MODE) {
-	blocks[i] = iv ^ ld_decryptn( blocks[i], n, keys );
-	iv = new_iv;
+        blocks[i] = iv ^ ld_decryptn( blocks[i], n, keys );
+        iv = new_iv;
       }
       else {
-	blocks[i] = ld_decryptn( blocks[i], n, keys );
+        blocks[i] = ld_decryptn( blocks[i], n, keys );
       }
     }
   }
@@ -385,23 +385,4 @@ void ld_recv_iv(int32_t fd)
   recv( fd, &_ld_IV, sizeof _ld_IV, 0 );
 
   _LD_CBC_MODE = 1;
-}
-
-/* Attempt to obfuscate the key from static analysis
-**
-** Return a pointer to the real key
-*/
-uint64_t *ld_obfuscate(uint64_t fake)
-{
-  static uint64_t key;
-  uint8_t i;
-
-  key = fake;
-  for ( i = 0; i < 255; i++ ) {
-    key ^= (0xABCDEF + i);
-    key += (0xFF * i);
-    key ^= (0xAABBCCDF - i*2);
-  }
-
-  return &key;
 }

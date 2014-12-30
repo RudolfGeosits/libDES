@@ -25,14 +25,14 @@ char cipher_msg[50], plain_msg[50];
 uint64_t plain_block = 0x0123456789ABCDEF,
   cipher_block = 0, deciphered_block = 0,
   keys[] = { 0x3b3898371520f75e,
-	     0x09872384734743e2,
-	     0xef4432847347445e,
-	     0x87089237549fff83,
-	     0x9398478293489233,};
+             0x09872384734743e2,
+             0xef4432847347445e,
+             0x87089237549fff83,
+             0x9398478293489233, };
 
-int main(int argc, char **argv)
+int main (int argc, char **argv)
 {
-  memset(plain_msg,  0,  sizeof plain_msg); /* Clear Message Buffers */
+  memset(plain_msg,  0, sizeof plain_msg); /* Clear Message Buffers */
   memset(cipher_msg, 0, sizeof cipher_msg);
 
   //###+++ String N-DES Encryption Example +++###
@@ -53,13 +53,13 @@ int main(int argc, char **argv)
   cipher_block = ld_encrypt(plain_block, keys[0]);
 
   printf("\nDES Encryption Result: %llX\n", 
-	 (unsigned long long)cipher_block);
+     (unsigned long long)cipher_block);
   ld_print_binary( cipher_block, 64 );  
 
   deciphered_block = ld_decrypt(cipher_block, keys[0]);
 
   printf("\nDES Encryption Result: %llX\n", 
-	 (unsigned long long)deciphered_block);
+     (unsigned long long)deciphered_block);
   ld_print_binary( deciphered_block, 64 );  
   */
 
@@ -70,13 +70,13 @@ int main(int argc, char **argv)
   cipher_block = ld_encrypt3(plain_block, keys);
 
   printf("\n3DES Encryption Result: %llX\n", 
-	 (unsigned long long)cipher_block);
+     (unsigned long long)cipher_block);
   ld_print_binary( cipher_block, 64 );  
 
   deciphered_block = ld_decrypt3(cipher_block, keys);
 
   printf("\nDES Encryption Result: %llX\n", 
-	 (unsigned long long)deciphered_block);
+     (unsigned long long)deciphered_block);
   ld_print_binary( deciphered_block, 64 );  
   */
 
@@ -86,14 +86,14 @@ int main(int argc, char **argv)
   cipher_block = ld_encryptn( plain_block, 5, keys );
   
   printf("\nN-DES Encryption Result: %llX\n", 
-	 (unsigned long long)cipher_block);
+     (unsigned long long)cipher_block);
   ld_print_binary( cipher_block, 64 );
 
   //                       N-DES     block  odd n  list of keys
   deciphered_block = ld_decryptn( cipher_block, 5, keys );
   
   printf("\nN-DES Decryption Result: %llX\n", 
-	 (unsigned long long)deciphered_block);
+     (unsigned long long)deciphered_block);
   ld_print_binary( deciphered_block, 64 );
   */
 
